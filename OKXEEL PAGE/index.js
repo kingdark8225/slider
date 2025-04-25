@@ -39,7 +39,7 @@ function changeBackground() {
   document.getElementById("headText").textContent = headText[head];
   document.getElementById("subText").textContent = subText[head];
 }
-setInterval(changeBackground, 3000);
+setInterval(changeBackground, 13000);
 
 document.addEventListener("DOMContentLoaded", () => {
   const main = document.getElementById("nav-heading");
@@ -95,7 +95,7 @@ document.addEventListener("keydown", function (e) {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  const onlineBtn = document.getElementById("online-button");
+  const onlineBtn = document.querySelector(".online");
 
   // When clicked, open WhatsApp
   onlineBtn.addEventListener("click", () => {
@@ -106,53 +106,81 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-const slid = ["slide1", "slide2", "slide3", "slide4", "slide5", "slide6"];
+const prevButtonEls = document.querySelectorAll(".prev");
+const nextButtonEls = document.querySelectorAll(".next");
 
-let list = document.querySelector(" .slid .list");
-let items = document.querySelectorAll(" .slid .list .item");
-let dots = document.querySelectorAll(" .slid .dots li");
-let prev = document.querySelector(".prev");
-let next = document.querySelector(".next");
-
-let active = 0;
-let lengthItems = items.length - 1;
-
-next.onclick = function () {
-  if (active + 1 > lengthItems) {
-    active = 0;
-  } else {
-    active = active + 1;
-  }
-  reloadSlider();
+const active = {
+  list0: 0,
+  list1: 0,
+  list2: 0,
+  list3: 0,
+  list4: 0,
+  list5: 0,
 };
+prevButtonEls.forEach(btn =>
+  btn.addEventListener("click", () => slide(btn, -1))
+);
+nextButtonEls.forEach(btn =>
+  btn.addEventListener("click", () => slide(btn, 1))
+);
 
-prev.onclick = function () {
-  if (active - 1 < 0) {
-    active = lengthItems;
-  } else {
-    active = active - 1;
+function slide(btnEl, offset) {
+  const listId = btnEl.closest(".slid").querySelector(".list").dataset.listid;
+
+  active[`list${listId}`] += offset;
+  if (active[`list${listId}`] < 0) {
+    active[`list${listId}`] = 4;
+  } else if (active[`list${listId}`] > 4) {
+    active[`list${listId}`] = 0;
   }
-  refreshSlider();
-};
-let refreshSlider = setInterval(() => {
-  next.onclick();
-}, 5000);
 
-function reloadSlider() {
-  let checkLeft = items[active].offsetLeft;
-  list.style.left = -checkLeft + "px";
+  const newLeft = `${active[`list${listId}`] * -300}px`;
 
-  let lastActiveDot = document.querySelectorAll(".slid .dots li.active");
-  lastActiveDot.classList.remove("active");
-  dots[active].classList.add("active");
-  clearInterval(refreshSlider);
-  refreshSlider = setInterval(() => {
-    next.onclick();
-  }, 5000);
+  btnEl.closest(".slid").querySelector(".items").style.left = newLeft;
+
+  btnEl
+    .closest(".slid")
+    .querySelectorAll("li")
+    .forEach((dot, i) => {
+      if (i === active[`list${listId}`]) {
+        dot.classList.add("active");
+      } else {
+        dot.classList.remove("active");
+      }
+    });
 }
-dots.forEach((li, key) => {
-  li.addEventListener("click", function () {
-    active = key;
-    reloadSlider();
-  });
+
+const clicks = document.querySelector(".click");
+const open = document.querySelector(".open");
+const close = document.querySelector(".close");
+const links = document.querySelector(".click-links");
+open.addEventListener("click", function (e) {
+  links.classList.remove("hidden");
+  clicks.style.display = "block";
+  clicks.style.animation = "happy";
+  close.style.display = "block";
+  close.style.display = "block";
+  open.style.display = "none";
+});
+window.addEventListener("click", function (e) {
+  if (
+    !clicks.contains(e.target) &&
+    !links.contains(e.target) &&
+    e.target == open
+  ) {
+    links.classList.add("hidden");
+    clicks.style.display = "none";
+    close.style.display = "none";
+    open.style.display = "block";
+    clicks.style.animation = "happy";
+  }
+});
+
+close.addEventListener("click", function (e) {
+  links.classList.add("hidden");
+  clicks.style.display = "none";
+
+  clicks.style.animation = "happy";
+  close.style.display = "none";
+  open.style.display = "block";
 });
